@@ -10,17 +10,23 @@ def timeout_view(request):
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = authenticate(request, email=email, password=password)
+        
         if user is not None:
             login(request, user)
-            return redirect('home')
+            
+            # Verifica os grupos do usuário autenticado
+            if user.groups.filter(name__in=['Administrador', 'Governo']).exists():
+                return redirect('homeGoverno')
+            else:
+                return redirect('home')
         else:
             messages.error(request, 'Email ou senha inválidos')
-    if request.user.is_authenticated:
-        return redirect('home')
+    
     return render(request, 'login.html')
 
 def register_view(request):

@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <link rel="stylesheet" href="{% static 'css/gov_style.css' %}">
 
-{% if user.is_authenticated %} 
+{% if user.is_authenticated and user.is_staff %} 
 <div class="urban-gov-menu-gov mb-3 mt-5">
     <i class="fas fa-search fs-3 me-2"></i>
     <a href="#"><span class="titulo-menu-gov">Consultas</span></a>

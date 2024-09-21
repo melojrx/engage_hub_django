@@ -75,8 +75,8 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + PROJECT_APPS
 JAZZMIN_SETTINGS = {
     "show_ui_builder": True,
     "site_title": "Administração do Sistema",  # Título da aba do navegador
-    "site_header": "Sistema Q&A",  # Cabeçalho na área de administração
-    "site_brand": "Sistema Q&A",  # Nome na barra superior
+    "site_header": "Engage_Hub",  # Cabeçalho na área de administração
+    "site_brand": "Engage_Hub",  # Nome na barra superior
     "welcome_sign": "Bem-vindo ao Painel de Administração",  # Mensagem de boas-vinda
 }
 
