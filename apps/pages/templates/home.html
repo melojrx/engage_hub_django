@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Sistema Q&A{% endblock %}
+{% block content %}
+{% if user.is_authenticated %}  
+	<div class="container-fluid mt-4">
+		<h4>Olá {{user.first_name}} {{user.last_name}}, </h4>
+		<h6>Bem Vindo(a)</h6>
+{% endif %} 
+		<p>{{user.email}}</p>	
+		<p>{{social}}</p>
+		<p>{{mensagem}}</p>
+	</div>
+{% endblock %}

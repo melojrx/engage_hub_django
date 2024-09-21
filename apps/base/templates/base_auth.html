@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Autenticação{% endblock %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="row w-100">
+        <!-- <div class="col-lg-7 d-none d-lg-block"></div> -->
+        <div class="col-md-10 mx-auto col-lg-5 p-4 p-md-5 rounded-4 bg-light shadow-sm">
+            <!-- {% include 'components/messages.html' %} -->
+            {% block content_auth %}{% endblock %}
+            <div class="text-muted py-4 text-center">
+                <small>Copyright© 2024 Engage_hub</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<nav class="navbar navbar-expand-lg navbar-primary bg-primary bg-body-tertiart">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="d-flex">
+                <img class="logo_engage_base" src="{% static 'img/logo_engage.png' %}" alt="Logo Engage">
+                <h3 class="urban_logo">Engage Hub</h3>
+            </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Sobre</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">FAQ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contato</a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Search">
+                    <button class="btn btn-success" type="submit">Pesquisar</button>
+                </form>
+            {% if user.is_authenticated %}
+                <span class="p-2 text-white"><i class="fas fa-user mx-2"></i>{{user.first_name|capfirst}}</span>
+                <button class="btn btn-danger" data-bs-toggle="modal" href="#logoutModal">Logout</button>
+            {% else %}
+                <button class="btn btn-primary mx-2" onclick="location.href='{% url "login" %}'">Entrar</button>
+                <button class="btn btn-warning" onclick="location.href='{% url "register" %}'">Cadastrar-se</button>
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

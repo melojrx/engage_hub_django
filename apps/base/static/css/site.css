@@ -1,0 +1,162 @@
+@import url("https://fonts.googleapis.com/css2?family=Righteous&display=swap");
+
+body,
+h1,
+h2,
+p,
+ul,
+li,
+a {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*Menu*/
+
+.menu-bg {
+  background: #2f59c2;
+}
+
+.menu-site {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 15px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-site a {
+  color: white;
+}
+
+.menu-logo a {
+  font-family: "Righteous", cursive !important;
+  font-size: 2.25em;
+  font-weight: bold;
+  margin: 0 10px;
+}
+
+.menu-logo a:hover {
+  color: white;
+  transition: all 0.3s;
+}
+
+.menu-nav ul {
+  display: flex;
+  flex-direction: row;  
+  flex-wrap: wrap;
+}
+
+.menu-nav a {
+  font-size: 1.25em;
+  font-weight: bold;
+  display: block;
+  padding: 10px;
+}
+
+.menu-nav a:hover {
+  color: #122ab2;
+  transition: 0.3s;
+}
+
+/* main site */
+
+.conteudo_site {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  background-size: cover;
+  justify-content: center;
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Footer */
+
+.footer-bg {
+  background: #2f59c2;
+}
+
+.logo img {
+  max-width: 50px; /* Defina o tamanho máximo da imagem */
+  height: auto; /* Mantém a proporção da imagem */
+}
+
+.footer-menu {
+  display: flex;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 15px 0;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-menu i,
+a {
+  color: white;
+}
+
+.contato-footer i,
+a {
+  padding: 5px;
+}
+
+.copy-footer-site {
+  color: white;
+  padding-right: 40px;
+  border-right: 1px solid white;
+}
+
+.social-footer {
+  display: flex;
+}
+
+.social-footer i {
+  font-size: 34px;
+  padding: 5px;
+}
+
+@media screen and (max-width: 794px) {
+  .footer-menu {
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
+}
+
+@media screen and (max-width: 794px) {
+  .contato-footer,
+  .social-footer,
+  .copy-footer-site {
+    padding: 20px;
+    border: none;
+  }
+}
+
+@media screen and (max-width: 794px) {
+  .social-footer i {
+    padding: 15px;
+  }
+}
+
+@media screen and (max-width: 461px) {
+  .copy-footer-site {
+    text-align: center;
+    border: none;
+    padding: 0;
+  }
+}

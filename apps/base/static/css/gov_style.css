@@ -1,0 +1,397 @@
+@import url('https://fonts.googleapis.com/css2?family=Righteous&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+/* Zera as config da página */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+  /* Barra Lateral esquerda  */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 20%;
+  background-color: #9DC9FC;
+  max-width: 20%;
+  max-height: 100%;
+  min-height: 94vh;
+  background-size: cover;
+  background-repeat: no-repeat; 
+
+}
+
+.card {
+  width: 80%;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+#card-finalizadas {
+  margin-top: 0;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-body span {
+  font-size: medium;
+  font-weight: 500;
+}
+
+.card-title {
+  font-size: 0.9em;
+}
+
+.urban-gov-menu-gov,
+.titulo-menu-gov {
+  color: black;
+  font-weight: bold; 
+}
+
+.urban-gov-menu-gov a {
+  text-decoration: none;
+}	
+
+
+.urban-gov-menu-gov {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+.titulo-menu-gov {
+  font-size: 1em;
+}
+
+.bi-file-text, 
+.bi-search, 
+.bi-bar-chart-line, 
+.bi-file-earmark-plus
+ {
+  font-size: 2.5em;
+  padding-right: 8px;
+}
+
+.footer_painel_esquerdo {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-end;
+  align-items: center;
+  font-style: normal;
+  font-size: 14px;
+  font-weight: bolder;
+  margin-bottom: 5px;
+  margin-left: auto;
+  margin-right: auto;
+  
+  }
+
+   /* Seção Principal - Mapa */
+
+.main-gov {
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  margin-top: 30px;
+    
+}
+
+.titulo_gestor_demandas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.div-notificacoes {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.bi-bell-fill {
+  color: red;
+  font-size: 1.6em;
+  padding-right: 7px;
+}
+
+.titulo_notificacoes {
+  font-size: 1em;
+  font-weight: 500;
+  padding-right: 5px;
+}
+.pesquisa_demanda {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 8px;
+  gap: 10px;
+}
+
+.pesquisa_demanda_form {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  align-content: center;
+  padding-top: 10px;
+  gap: 10px;
+  
+}
+
+.btn_pesquisa_demanda {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.icone-pesquisa-demanda-sm {
+  font-size: 1em;
+  padding-right: 1px;
+}
+  
+  /* Barra Lateral direita */
+.painel_direito_gov {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* width: 30%; */
+  /* background-image: url('../img/barra_lateral.png'); */
+  background-repeat: no-repeat;
+  height: auto;
+  background-size: cover; 
+}
+
+.container_lista_ultimas_demandas {
+  border: 1px solid #3333;
+  margin: 5px auto;
+  
+}
+.data_hora_lista_gov {
+  font-size: 14px;
+}
+
+.titulo_lista_demandas {
+    padding-top: 10px;
+    
+}
+
+.usuario-logado-lista {
+  font-size: small;
+  font-weight: 500;
+}
+
+@media screen and (max-width:990px) {
+  .painel_esquerdo_gov,
+  .painel_esquerdo_geral {
+    display: none;
+    transition: all .3s;
+  }
+  .main-gov {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .urban_gov_principal {
+    /* display: flex; */
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media screen and (min-width:1540px) {
+  .urban_gov_principal {
+    display: block;
+    justify-content: space-around;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+@media screen and (min-width:990px) {
+  #novaocorrenciaadmmenu {
+    display: none;
+    transition: all .3s;
+  }
+}
+
+/* Estilos Página Visualiza Demanda */
+
+.main-visualiza-evento-gov {
+  display: flex;
+  width: 80%;
+  justify-content: center;
+}
+.visualiza-evento-gov {
+  background-color: #FFF;
+  border-radius: 20px;
+  box-shadow: .5px 10px 15px rgba(0, 0, 0, 0.2);
+  margin: 25px auto;
+  padding: 25px;
+
+}
+
+.status-evento {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.status-evento p {
+  font-size: 0.9em;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.detalha-ocorrencia {
+  margin-top: 10px;
+} 
+
+.col-img-detalha-demanda {
+  border-left: 1px solid #ced4da;
+}
+.bi-pencil-square {
+  margin-right: 5px;
+}
+
+/* Painel Administrativo */
+
+.main-filtra-eventos {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-size: 0.9em;
+}
+
+.filtros-button {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.div-button-filtrar-eventos {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 27px;
+}
+.tabela-filtros {
+  font-size: 0.9em;
+}
+
+.bi-arrow-left-circle {
+  margin-right: 3px;
+}
+
+.titulo-relatorios i,
+.titulo-estatisticas i,
+.titulo-filtra-demandas i {
+  font-size: 1.5em;
+}
+
+/* Relatórios */
+
+.forms-pdf-csv-export {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+.label-pdf {
+  margin-right: 5px;
+}
+
+.bi-download {
+  margin-right: 3px;
+}
+
+.buttons-relatorios {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+}
+
+.filtros-relatorios {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #CFCFCF;
+
+}
+
+/* Modal */
+
+.modal-header-rels {
+  font-size: 1em;
+  color: white;
+  background: rgb(9,9,121);
+  background: linear-gradient(90deg, rgba(9,9,121,1) 0%, rgba(49,5,245,1) 35%, rgba(0,212,255,1) 100%);
+}
+
+.bi-clipboard-data {
+  margin-right: 5px;
+}
+
+/* Estatisticas */
+
+.main-estatisticas {
+  display: flex;
+  justify-content: center;
+
+}
+
+.painel-estatisticas {
+  border: 1px solid #CFCFCF;
+  padding-bottom: 8px;
+}
+
+.cards-estatisticas {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.button-voltar-estatisticas {
+  display: flex;
+  justify-content: end;
+  margin-top: -5px;
+ 
+
+}
+
+/* Off Canvas Lista Demandas */
+
+.btn-lista-demandas {
+  display: flex;
+  flex-direction: row;
+  gap: 5px; 
+}
+
+.button-visualiza-demanda-off-canvas {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  margin-top: -10px;
+}
+
+ 
+
