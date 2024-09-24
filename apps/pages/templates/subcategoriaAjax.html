@@ -1,0 +1,9 @@
+<div class="form-group">
+    <label for="id_subcategoria">Subcategoria</label>
+    <select name="subcategoria" id="id_subcategoria" class="form-select">
+        <option value="">Selecione...</option>
+        {% for subcategoria in subcategorias %}
+            <option value="{{ subcategoria.id }}">{{ subcategoria.txtSubcategoria }}</option>
+        {% endfor %}
+    </select>
+</div>
