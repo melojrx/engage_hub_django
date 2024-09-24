@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/map.css' %}">
+<!-- Load Leaflet from CDN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
+
+<!-- Load Esri Leaflet from CDN -->
+<script src="https://unpkg.com/esri-leaflet@^3.0.9/dist/esri-leaflet.js"></script>
+<script src="https://unpkg.com/esri-leaflet-vector@4.0.0/dist/esri-leaflet-vector.js"></script>
+
+<!-- Load Esri Leaflet Geocoder from CDN -->
+<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@^3.1.3/dist/esri-leaflet-geocoder.css">
+<script src="https://unpkg.com/esri-leaflet-geocoder@^3.1.3/dist/esri-leaflet-geocoder.js"></script>
+
+<div class="container-fluid" id="form-cadastro-evento">
+    <form method="POST" enctype='multipart/form-data' action="{% url 'cadastro_evento' %}">
+        {% csrf_token %}
+        <div class="container mt-2" id="form_cad_evento">
+            <h5>PUBLIQUE SUA DEMANDA</h5>
+
+            <!-- Problema Field -->
+            {{ form.problema.label_tag }}
+            {{ form.problema }}
+            {% for error in form.problema.errors %}
+            <div class="important">
+                {{ error }}
+            </div>
+            {% endfor %}
+            <br>
+
+            <!-- Endereço Field -->
+            {{ form.endereco.label_tag }}
+            {{ form.endereco }}
+            <div id="endereco-suggestions"></div>
+            {% for error in form.endereco.errors %}
+            <div class="important">
+                {{ error }}
+            </div>
+            {% endfor %}
+            <br>
+
+            <!-- Latitude and Longitude (hidden) -->
+            <div class="d-none">
+                {{ form.latitude.label_tag }}
+                {{ form.latitude }}
+    
+                {{ form.longitude.label_tag }}
+                {{ form.longitude }}
+            </div>
+        </div>
+
+        <br>
+
+        <!-- Map (if applicable) -->
+        <div id="map" class="container"></div>
+
+        <br>
+
+        <!-- Campo de Categoria -->
+        <div class="container">
+            {{ form.categoria.label_tag }}
+            {{ form.categoria }}
+            {% for error in form.categoria.errors %}
+            <div class="important">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <br>
+
+        <!-- Campo de Subcategoria, que será carregado dinamicamente via AJAX -->
+        <div class="container" id="showSubcategorias">
+            <!-- O conteúdo carregado pelo AJAX aparecerá aqui -->
+        </div>
+        <br>
+
+        <!-- File Upload -->
+        <div class="container">
+            <div class="mb-4">
+                {{ form.file.label_tag }}
+                {{ form.file }}
+                {% for error in form.file.errors %}
+                <div class="important">
+                    {{ error }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Submit and Back Buttons -->
+        <div class="d-flex justify-content-end mb-3 px-3">
+            <button type="submit" class="btn btn-primary btn-sm me-2">
+                <i class="bi bi-pencil-square"></i> Publicar
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="window.location.href='{% url 'home' %}';">
+                <i class="bi bi-arrow-left-circle"></i> Voltar
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block scripts %}
+    <script src="{% static 'js/map.js' %}"></script> <!-- Carrega o arquivo map.js corretamente -->
+{% endblock %}
+
+<!-- Função para carregar subcategorias dinamicamente -->
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#id_categoria').change(function () {  // Certifique-se de que o id do campo categoria está correto
+            var categoria_id = $(this).val();  // Pega o valor da categoria selecionada
+    
+            if (categoria_id) {
+                $.ajax({
+                    url: "{% url 'load_subcategorias' %}",  // URL correta da view
+                    type: 'POST',
+                    data: {
+                        id_categoria: categoria_id,
+                        csrfmiddlewaretoken: $('[name="csrfmiddlewaretoken"]').val()  // Inclui o token CSRF
+                    },
+                    success: function (response) {
+                        // Carrega o conteúdo de subcategorias no HTML
+                        $('#showSubcategorias').html(response.htmlresponse);
+                    }
+                });
+            } else {
+                // Limpa o campo de subcategorias se nenhuma categoria for selecionada
+                $('#showSubcategorias').html('<p>Selecione uma categoria primeiro</p>');
+            }
+        });
+    }); 
+
+    let enderecoInput = document.getElementById('id_endereco'); 
+    let suggestionsDiv = document.getElementById('endereco-suggestions');
+
+    enderecoInput.addEventListener("input", function () {
+        const address = enderecoInput.value;
+
+        if (address.length >= 5) {
+            fetchSuggestions(address);
+        } else {
+            suggestionsDiv.innerHTML = '';
+        }
+    });
+
+    enderecoInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            const selectedSuggestion = suggestionsDiv.querySelector('.suggestion.selected');
+            if (selectedSuggestion) {
+                selectSuggestion(JSON.parse(selectedSuggestion.getAttribute('data-suggestion')));
+            }
+        }
+    });
+
+    function fetchSuggestions(address) {
+        const url = 'https://nominatim.openstreetmap.org/search.php?q=' + address + '&dedupe=0&addressdetails=1&format=jsonv2';
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                suggestionsDiv.innerHTML = '';
+
+                data.forEach(item => {
+                    let endereco = (item.address.road ? item.address.road : "")
+                        + ", " + (item.address.house_number ? item.address.house_number : "S/N")
+                        + ", " + (item.address.suburb ? item.address.suburb : "")
+                        + ", " + (item.address.city ? item.address.city : "")
+                        + " - " + (item.address.state ? item.address.state : "")
+                        + ", " + (item.address.postcode ? item.address.postcode : "")
+                        + ", " + (item.address.country ? item.address.country : "");
+
+                    const suggestion = document.createElement('div');
+                    suggestion.className = 'suggestion';
+                    suggestion.textContent = endereco;
+                    suggestion.setAttribute('data-suggestion', JSON.stringify(item));
+                    suggestion.addEventListener('click', () => {
+                        selectSuggestion(item, endereco);
+                    });
+                    suggestionsDiv.appendChild(suggestion);
+                });
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    function selectSuggestion(item, endereco) {
+        const lat = item.lat;
+        const lng = item.lon;
+        document.getElementById('id_latitude').value = lat; // Certifique-se de usar o ID correto
+        document.getElementById('id_longitude').value = lng; // Certifique-se de usar o ID correto
+        document.getElementById('id_endereco').value = endereco;
+        document.getElementById('id_bairro').value = item.address.suburb;
+        map.setView([lat, lng], 15);
+        marker = L.marker([lat, lng]);
+        adicionarMarcador(marker);
+        suggestionsDiv.innerHTML = '';
+    }
+</script>
+
+{% endblock content %}
