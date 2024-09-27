@@ -115,13 +115,6 @@ body {
   padding-right: 5px;
 }
 
-.bi-patch-plus {
-  padding-right: 5px;
-}
-.bi-search {
-  margin-right: 2px;
-}
-
 /* Visualizar demanda */
 
 .div-titulo-minha-demanda {
@@ -129,16 +122,16 @@ body {
   margin-bottom: 5px;
 }
 
-.bi-arrow-left-circle {
-  margin-right: 3px;
-  padding-right: 3px;
-}
-
 .titulo-minha-demanda {
   font-size: 1.5em;
   font-weight: 500;
   padding-top: 10px;
   text-align: center;
+}
+
+a.text-muted:hover {
+  color: #0d6efd;;
+  transition: all 0.3s;
 }
 
 /* Paginação */

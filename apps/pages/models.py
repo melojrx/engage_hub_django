@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Max
 from django.utils import timezone
 from contas.models import MyUser
 from django.contrib.auth import get_user_model
@@ -43,6 +44,24 @@ class Evento(models.Model):
     
     def __str__(self):
         return self.numOcorrencia
+    
+    @property
+    def ultima_atualizacao(self):
+        # Obter o último EventoHistorico associado ao evento
+        ultimo_historico = self.historicos.order_by('-dataInicio').first()
+        
+        if ultimo_historico:
+            # Obter a data da última observação associada ao último EventoHistorico
+            ultima_observacao = ultimo_historico.observacoes.aggregate(Max('dataInicio'))['dataInicio__max']
+            # Comparar as datas e retornar a mais recente
+            datas = [data for data in [ultimo_historico.dataInicio, ultima_observacao] if data]
+            if datas:
+                return max(datas)
+            else:
+                return self.dataInicio
+        else:
+            # Se não houver históricos, retornar a dataInicio do Evento
+            return self.dataInicio
 
     
 class StatusEvento(models.Model):
@@ -68,6 +87,9 @@ class EventoHistorico(models.Model):
     def __str__(self):
         return f"Histórico do Evento {self.idEvento} - {self.idStatusEvento}"
 
+    @property
+    def tempo_decorrido(self):
+        return int((timezone.now() - self.dataInicio).total_seconds() // 60)
 
 class EventoObservacao(models.Model): 
     id = models.AutoField('id_evento_observacao_eob', primary_key=True)

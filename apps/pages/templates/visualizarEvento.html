@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="col-md-9 col-lg-9 container">
+        <div class="container painel-direito-home">
+            <div class="mt-4">
+                <h6 class="fs-4"><i class="far fa-building fs-3"></i> Minha Demanda</h6>
+            </div>
+            <hr>
+            <strong>Ocorrência:</strong> <span class="fw-bold">{{ eventoHistorico.idEvento.numOcorrencia }}</span> <br>
+            <strong>Início:</strong> <span class="fw-normal">{{ eventoHistorico.dataInicio|date }}</span> <br>
+            <div class="status-evento">
+                <strong>Status:</strong>
+                {% if eventoHistorico.idStatusEvento.id == 1 %}
+                    <p class="alert alert-danger mt-2 p-1 " role="alert"> {{ eventoHistorico.idStatusEvento.txtStatusEvento }} </p>
+                {% elif eventoHistorico.idStatusEvento.id == 2 %}
+                    <p class="alert alert-success mt-2 p-1" role="alert"> {{ eventoHistorico.idStatusEvento.txtStatusEvento }} </p>
+                {% elif eventoHistorico.idStatusEvento.id == 3 %}
+                    <p class="alert alert-info mt-2 p-1" role="alert"> {{ eventoHistorico.idStatusEvento.txtStatusEvento }} </p>
+                {% endif %}
+            </div>
+            <strong>Última Atualização:</strong>
+            <span class="fw-normal">
+                {% if eventoHistorico.idEvento.ultima_atualizacao %}
+                    {{ eventoHistorico.idEvento.ultima_atualizacao|date }}
+                {% else %}
+                    Não há atualizações.
+                {% endif %}
+            </span><br>
+            <strong>Tipo:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.idSubcategoria.txtSubcategoria }} - {{ eventoHistorico.idEvento.idSubcategoria.idCategoria.txtCategoria }}</span> <br>
+            <strong>Endereço:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.txtEndereco }}</span> <br>
+            <strong>Problema:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.txtProblema }}</span> <br>
+            <!-- Latitude e Longitude se necessário -->
+            <div class="container mt-2">
+                <div class="row align-items-center justify-content-center">
+                    <figure class="figure text-center" id="img">
+                        <img class="figure-img rounded" src="{{ eventoHistorico.idEvento.file.url }}" width="100%">
+                        <figcaption class="figure-caption">{{ eventoHistorico.idEvento.txtProblema }}</figcaption>
+                    </figure>
+                </div>
+            </div>
+            <div class="container">
+                <div class="container">
+                    <h5><strong>Ocorrência: <span>{{ eventoHistorico.idEvento.numOcorrencia }}</span></strong></h5>
+                    <hr>
+                    {% for evento in listEventoHistorico %}
+                        <span class="fw-bold">Status:</span> <span class="fw-normal">{{ evento.idStatusEvento.txtStatusEvento }}</span> <br>
+                        <!-- Exibir o usuário que mudou o status, se necessário -->
+                        {% for obs in evento.listObservacao.all %}
+                            <span class="fw-bold">{{ obs.idUsuario.nome }}</span> <b>Em</b> <span class="fw-normal">{{ obs.dataInicio|date:"d/m/Y 'às' H:i\h" }}:</span>
+                            <span class="fw-normal">{{ obs.txtObservacao }}</span> <br>
+                        {% endfor %}
+                    {% endfor %}
+                    <div class="d-grid gap-2 m-2 d-md-flex mx-auto justify-content-md-end">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="window.location.href='{% url 'homeUsuario' %}';"><i class="bi bi-arrow-left-circle"></i> Voltar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

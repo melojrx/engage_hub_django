@@ -1,13 +1,105 @@
 {% extends 'base.html' %}
-{% block title %}Sistema Q&A{% endblock %}
+{% block title %}Engage Hub{% endblock %}
+
 {% block content %}
-{% if user.is_authenticated %}  
-	<div class="container-fluid mt-4">
-		<h4>Olá {{user.first_name}} {{user.last_name}}, </h4>
-		<h6>Bem Vindo(a)</h6>
-{% endif %} 
-		<p>{{user.email}}</p>	
-		<p>{{social}}</p>
-		<p>{{mensagem}}</p>
-	</div>
+
+<style>
+    a.text-muted:hover {
+        color: #0d6efd !important; 
+    }
+</style>
+
+<main class="container-fluid">
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="display-5 text-center">Bem-vindo ao Engage Hub</h1>
+                <p class="lead text-center">Aqui você pode ajudar a sua cidade a se tornar um lugar melhor!</p>
+            </div>
+        </div>
+    <div class="d-grid gap-2 col-12 mx-auto mt- mb-3 justify-content-center botao_demanda">
+        <a class="btn btn-primary me-md-2" href="{% url 'iniciar' %}" type="submit">
+            <i class="fas fa-plus-circle me-2"></i> Como você quer ajudar sua cidade?
+        </a>
+    </div>
+
+    {% for eventoHistorico in listHistoricoEvento %}
+        <div class="container d-flex justify-content-center">
+            <div class="card mb-3 mt-2" style="max-width: 30rem;">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <!-- Coluna da esquerda: Ícone e nome do usuário -->
+                        <div class="col-auto d-flex align-items-center">
+                            <i class="fas fa-user-circle fs-2 text-secondary me-2"></i>
+                            <p class="fw-semibold mb-0">{{ eventoHistorico.idEvento.idUsuario.get_full_name }}</p>
+                        </div>
+                        <!-- Coluna da direita: Tempo decorrido -->
+                        <div class="col text-end">
+                            <p class="fw-medium mb-0 text-muted">há {{ eventoHistorico.tempo_decorrido }} minutos atrás</p>
+                        </div>
+                    </div>
+                </div>
+                <img src="data:image/jpeg;base64,{{ eventoHistorico.idEvento.fileBase64 }}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="card-text">{{ eventoHistorico.idEvento.txtProblema }}.</p>
+                </div>
+                <div class="card-footer text-end">
+                    <a href="{% url 'selecionarEvento' eventoHistorico.idEvento.numOcorrencia %}" class="text-decoration-none text-muted">Visualizar Demanda</a>
+                </div>
+                
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- Paginação -->
+    {% if listHistoricoEvento.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4">
+
+                {% if listHistoricoEvento.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ listHistoricoEvento.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </span>
+                    </li>
+                {% endif %}
+
+                {% for num in listHistoricoEvento.paginator.page_range %}
+                    {% if listHistoricoEvento.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }} <span class="sr-only">(atual)</span></span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if listHistoricoEvento.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ listHistoricoEvento.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </span>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    {% endif %}
+
+</main>
+
 {% endblock %}
