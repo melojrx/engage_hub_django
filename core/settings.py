@@ -66,6 +66,7 @@ PROJECT_APPS = [
     'apps.base',
     'apps.pages',
     'apps.contas',
+    'apps.estatisticas',
 ]
 
 AUTH_USER_MODEL = "contas.MyUser"
