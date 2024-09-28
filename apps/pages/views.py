@@ -1,8 +1,10 @@
 from base64 import b64encode
-from django.db.models import Q, Count, Max
+from django.db.models.functions import Concat
+from django.db.models import Q, Count, Max, Value, CharField, F
+from django.forms import CharField
 from django.utils import timezone
 from django.http import JsonResponse
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
@@ -10,9 +12,12 @@ from django.contrib.auth.decorators import login_required
 from core.enum import statusEventoEnum
 from contas.permissions import grupo_administrador_required
 from .forms import EventoForm
-from .models import Evento, EventoHistorico, Categoria, Subcategoria, StatusEvento
+from .models import MyUser, Evento, EventoHistorico, Categoria, EventoObservacao, Subcategoria, StatusEvento
 from geopy.geocoders import Nominatim
 from core.enum import statusEventoEnum
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 import folium
 import datetime
@@ -265,6 +270,11 @@ def selecionarEvento(request, num_ocorrencia):
             with t.idEvento.file.open('rb') as f:
                 t.idEvento.fileBase64 = b64encode(f.read()).decode()
 
+    # Obter os status e adicioná-los ao contexto
+    status_aguardando = StatusEvento.objects.get(txtStatusEvento='Aguardando Atendimento')
+    status_em_andamento = StatusEvento.objects.get(txtStatusEvento='Em Andamento')
+    status_finalizado = StatusEvento.objects.get(txtStatusEvento='Finalizado')
+
     # Verificar as permissões do usuário
     if request.user.groups.filter(name__in=['Governo', 'Administrador']).exists():
         template_name = 'visualizarEventoGoverno.html'
@@ -273,5 +283,211 @@ def selecionarEvento(request, num_ocorrencia):
 
     return render(request, template_name, {
         'eventoHistorico': eventoHistorico,
-        'listEventoHistorico': listEventoHistorico
+        'listEventoHistorico': listEventoHistorico,
+        'status_aguardando': status_aguardando,
+        'status_em_andamento': status_em_andamento,
+        'status_finalizado': status_finalizado,
     })
+
+@login_required
+def cadastrarObservacao(request, evento_historico_id, num_ocorrencia):
+    if request.method == 'POST':
+        txtObservacao = request.POST.get('observacao', '').strip()
+        dataInicio = timezone.now()
+
+        try:
+            eventoHistorico = get_object_or_404(EventoHistorico, id=evento_historico_id)
+            eventoObservacao = EventoObservacao(
+                idEventoHistorico=eventoHistorico,
+                idUsuario=request.user,
+                txtObservacao=txtObservacao,
+                dataInicio=dataInicio
+            )
+            eventoObservacao.save()
+            messages.success(request, 'Observação cadastrada com sucesso.')
+        except Exception as e:
+            messages.error(request, f'Erro: {e}')
+        
+        return redirect('selecionarEvento', num_ocorrencia=num_ocorrencia)
+    else:
+        return redirect('selecionarEvento', num_ocorrencia=num_ocorrencia)
+
+@login_required
+def atender(request, num_ocorrencia):
+    try:
+        data = timezone.now()
+
+        evento = get_object_or_404(Evento, numOcorrencia=num_ocorrencia)
+        # Fecha o EventoHistorico atual
+        eventoHistorico_atual = EventoHistorico.objects.filter(idEvento=evento, dataFim__isnull=True).first()
+        if eventoHistorico_atual:
+            eventoHistorico_atual.dataFim = data
+            eventoHistorico_atual.save()
+        
+        # Obter o StatusEvento correspondente a "Em Andamento"
+        status_em_andamento = get_object_or_404(StatusEvento, txtStatusEvento='Em Andamento')
+
+        # Criar um novo EventoHistorico com o status "Em Andamento"
+        newEventoHistorico = EventoHistorico(
+            idEvento=evento,
+            idStatusEvento=status_em_andamento,
+            idUsuario=request.user,
+            dataInicio=data
+        )
+        newEventoHistorico.save()
+
+        messages.success(request, f'Evento alterado para: {status_em_andamento.txtStatusEvento}.')
+    except Exception as e:
+        messages.error(request, f'Erro: {e}')
+
+    return redirect('selecionarEvento', num_ocorrencia=num_ocorrencia)
+
+@login_required
+def finalizar(request, num_ocorrencia):
+    try:
+        data = timezone.now()
+
+        evento = get_object_or_404(Evento, numOcorrencia=num_ocorrencia)
+        # Fecha o EventoHistorico atual
+        eventoHistorico_atual = EventoHistorico.objects.filter(idEvento=evento, dataFim__isnull=True).first()
+        if eventoHistorico_atual:
+            eventoHistorico_atual.dataFim = data
+            eventoHistorico_atual.save()
+        
+        # Obter o StatusEvento correspondente a "Finalizado"
+        status_finalizado = get_object_or_404(StatusEvento, txtStatusEvento='Finalizado')
+
+        # Criar um novo EventoHistorico com o status "Finalizado"
+        newEventoHistorico = EventoHistorico(
+            idEvento=evento,
+            idStatusEvento=status_finalizado,
+            idUsuario=request.user,
+            dataInicio=data
+        )
+        newEventoHistorico.save()
+
+        messages.success(request, f'Evento alterado para: {status_finalizado.txtStatusEvento}.')
+    except Exception as e:
+        messages.error(request, f'Erro: {e}')
+
+    return redirect('selecionarEvento', num_ocorrencia=num_ocorrencia)
+
+@login_required
+def search(request):
+    numOcorrencia = request.GET.get('numOcorrencia', '').strip()
+    if not numOcorrencia:
+        messages.error(request, 'Por favor, insira um número de ocorrência para pesquisar.')
+        return redirect('homeGoverno')
+
+    eventoHistorico = EventoHistorico.objects.filter(
+        dataFim__isnull=True,
+        idEvento__numOcorrencia=numOcorrencia
+    ).first()
+
+    if eventoHistorico is None:
+        messages.error(request, f'Ocorrência {numOcorrencia} não encontrada.')
+        return redirect('homeGoverno')
+
+    return redirect('selecionarEvento', num_ocorrencia=eventoHistorico.idEvento.numOcorrencia)
+
+@login_required
+def prepare_search(request):
+    list_categoria = Categoria.objects.filter(dataFim__isnull=True)
+    list_status = StatusEvento.objects.filter(dataFim__isnull=True)
+    list_usuario = MyUser.objects.all()
+
+    context = {
+        'listCategoria': list_categoria,
+        'listStatus': list_status,
+        'listUsuario': list_usuario,
+    }
+    return render(request, 'filtraEventos.html', context)
+
+@login_required
+def evento_search(request):
+    list_categoria = Categoria.objects.filter(dataFim__isnull=True)
+    list_status = StatusEvento.objects.filter(dataFim__isnull=True)
+    list_usuario = User.objects.all()
+
+    # Obtendo os parâmetros de busca
+    numOcorrenciaSearch = request.GET.get('numOcorrenciaSearch', '').strip()
+    statusSearch = request.GET.get('statusSearch', '').strip()
+    categoriaSearch = request.GET.get('categoriaSearch', '').strip()
+    dataInicioSearch = request.GET.get('dataInicioSearch', '').strip()
+    dataFimSearch = request.GET.get('dataFimSearch', '').strip()
+    userSearch = request.GET.get('userSearch', '').strip()
+
+    if not any([numOcorrenciaSearch, statusSearch, categoriaSearch, dataInicioSearch, dataFimSearch, userSearch]):
+        messages.error(request, 'Informe pelo menos um critério de pesquisa.')
+        context = {
+            'listCategoria': list_categoria,
+            'listStatus': list_status,
+            'listUsuario': list_usuario,
+        }
+        return render(request, 'filtraEventos.html', context)
+
+    query_search = EventoHistorico.objects.filter(dataFim__isnull=True)
+
+    if numOcorrenciaSearch:
+        query_search = query_search.filter(idEvento__numOcorrencia=numOcorrenciaSearch)
+
+    if statusSearch:
+        query_search = query_search.filter(idStatusEvento__id=statusSearch)
+
+    if categoriaSearch:
+        query_search = query_search.filter(idEvento__idSubcategoria__idCategoria__id=categoriaSearch)
+
+    if userSearch:
+        query_search = query_search.filter(idEvento__idUsuario__email__icontains=userSearch)
+
+    if dataInicioSearch and dataFimSearch:
+        query_search = query_search.filter(idEvento__dataInicio__range=[dataInicioSearch, dataFimSearch])
+    elif dataInicioSearch:
+        query_search = query_search.filter(idEvento__dataInicio__gte=dataInicioSearch)
+    elif dataFimSearch:
+        query_search = query_search.filter(idEvento__dataInicio__lte=dataFimSearch)
+
+    query_search = query_search.order_by('-dataInicio')
+
+    # Paginação
+    ROWS_PER_PAGE = 5
+    page = request.GET.get('page', 1)
+    paginator = Paginator(query_search, ROWS_PER_PAGE)
+
+    try:
+        list_evento_historico_search = paginator.page(page)
+    except PageNotAnInteger:
+        list_evento_historico_search = paginator.page(1)
+    except EmptyPage:
+        list_evento_historico_search = paginator.page(paginator.num_pages)
+
+    if not list_evento_historico_search:
+        messages.error(request, 'A pesquisa não encontrou nenhum resultado.')
+        context = {
+            'listCategoria': list_categoria,
+            'listStatus': list_status,
+            'listUsuario': list_usuario,
+        }
+        return render(request, 'filtraEventos.html', context)
+
+    context = {
+        'listCategoria': list_categoria,
+        'listStatus': list_status,
+        'listUsuario': list_usuario,
+        'listEventoHistoricoSearch': list_evento_historico_search,
+        'numOcorrenciaSearch': numOcorrenciaSearch,
+        'statusSearch': statusSearch,
+        'categoriaSearch': categoriaSearch,
+        'dataInicioSearch': dataInicioSearch,
+        'dataFimSearch': dataFimSearch,
+        'userSearch': userSearch,
+    }
+    return render(request, 'filtraEventos.html', context)
+
+def user_autocomplete(request):
+    user_search = request.GET.get('userSearch', '')
+    results = []
+    if user_search:
+        users = User.objects.filter(email__icontains=user_search)[:10]
+        results = [{'label': user.email, 'value': user.email} for user in users]
+    return JsonResponse({'results': results})

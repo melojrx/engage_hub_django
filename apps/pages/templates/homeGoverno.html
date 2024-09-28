@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container-fluid">
+
   <!-- Cards com as contagens -->
   <div class="container-fluid">
-    <div class="row">
+    <div class="row gx-3">
       <div class="col">
         <div class="card mb-2 border-primary">
           <div class="card-body">
@@ -39,7 +39,7 @@
       </div>
     </div>
   </div>
-
+  
   <!-- Título e notificações -->
   <div class="container titulo_gestor_demandas">
     <h6 class="titulo_texto_gestor_demandas"> GESTOR DE DEMANDAS MUNICIPAIS</h6>
@@ -51,27 +51,26 @@
   </div>
 
   <!-- Mapa -->
-  <div class="container">
+  <div class="container-fluid">
     {{ mapHtml|safe }}
   </div>
 
-  <!-- Formulário de Pesquisa -->
-  <div class="pesquisa_demanda">
-    <form method="GET">
-      <h6 class="form-label"> Pesquisar Demanda: </h6>
-      <div class="pesquisa_demanda_form">
-        <input type="text" id="numOcorrencia" name="numOcorrencia" class="form-control"
-          placeholder="Número da Ocorrência" />
-        <button type="submit" class="btn btn-primary btn_pesquisa_demanda">
-          <i class="bi bi-search icone-pesquisa-demanda-sm"></i>
-          Pesquisar
-        </button>
-        <button class="btn btn-primary btn-lista-demandas" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-          <i class="bi bi-card-list"></i>Demandas
-        </button>
-      </div>
-    </form>
-  </div>
+ <!-- Formulário de Pesquisa -->
+<div class="pesquisa_demanda">
+  <form method="GET" action="{% url 'search' %}">
+    <h6 class="form-label"> Pesquisar Ocorrência: </h6>
+    <div class="pesquisa_demanda_form">
+      <input type="text" id="numOcorrencia" name="numOcorrencia" class="form-control" placeholder="Número da Ocorrência" />
+      <button type="submit" class="btn btn-primary btn_pesquisa_demanda">
+        <i class="bi bi-search icone-pesquisa-demanda-sm"></i>
+        Pesquisar
+      </button>
+      <button class="btn btn-primary btn-lista-demandas" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+        <i class="bi bi-card-list"></i>Demandas
+      </button>
+    </div>
+  </form>
+</div>
 
  <!-- Off Canvas -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
@@ -117,6 +116,6 @@
 </div>
 
 
-</div>
+
 
 {% endblock %}
