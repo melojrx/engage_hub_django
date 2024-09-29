@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from core.enum import statusEventoEnum
-from contas.permissions import grupo_administrador_required
+from contas.permissions import grupo_administrador_required, grupo_usuario_required
 from .forms import EventoForm
 from .models import MyUser, Evento, EventoHistorico, Categoria, EventoObservacao, Subcategoria, StatusEvento
 from geopy.geocoders import Nominatim
@@ -34,6 +34,7 @@ def home(request):
         return redirect('homeUsuario')
 
 @login_required
+@grupo_usuario_required(['Usuario'])
 def homeUsuario(request):
     # Define o número de linhas por página
     ROWS_PER_PAGE = 3
