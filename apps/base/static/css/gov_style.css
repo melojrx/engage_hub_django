@@ -393,5 +393,11 @@
   margin-top: -10px;
 }
 
+.button-voltar {
+  display: flex;
+  justify-content: end;
+  margin-top: -5px;
+
+}
  
 

@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/gov_style.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
 {% block content %}
 
 <script type="text/javascript">
@@ -159,14 +164,14 @@
           {% endif %}
         </ul>
       </nav>
-      <div class="button-voltar">
+      <!-- <div class="button-voltar">
         <button type="button" class="btn btn-danger btn-sm"
           onclick="window.location.href='{% url 'homeGoverno' %}';"><i class="bi bi-arrow-left-circle"></i> Voltar
         </button>
-      </div>
+      </div> -->
     </div>
   </div>
-{% endif %}
+  {% endif %}
 </div>
 
 {% endblock %}
