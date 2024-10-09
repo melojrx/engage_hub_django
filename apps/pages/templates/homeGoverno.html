@@ -1,13 +1,120 @@
 {% extends 'base.html' %}
-{% block title %}Sistema Q&A{% endblock %}
 {% block content %}
-{% if user.is_authenticated %}  
-	<div class="container-fluid mt-4">
-		<h4>Olá {{user.first_name}} {{user.last_name}}, </h4>
-		<h6>Bem Vindo(a) a Home Governo</h6>
-{% endif %} 
-		<p>{{user.email}}</p>	
-		<p>{{social}}</p>
-		<p>{{mensagem}}</p>
-	</div>
+
+
+  <!-- Cards com as contagens -->
+  <div class="container-fluid">
+    <div class="row gx-3">
+      <div class="col">
+        <div class="card mb-2 border-primary">
+          <div class="card-body">
+            <h6 class="card-title" style="font-size: smaller;">Demandas Totais</h6>
+            <span class="badge bg-primary"> {{ contTotal }} </span>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card mb-2 border-success">
+          <div class="card-body">
+            <h6 class="card-title" style="font-size: smaller;">Demandas Finalizadas</h6>
+            <span class="badge bg-success"> {{ contFinalizada }} </span>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card mb-2 border-danger">
+          <div class="card-body">
+            <h6 class="card-title" style="font-size: smaller;">Aguardando</h6>
+            <span class="badge bg-danger"> {{ contAguardando }} </span>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card mb-2 border-warning">
+          <div class="card-body">
+            <h6 class="card-title" style="font-size: smaller;">Em andamento</h6>
+            <span class="badge bg-warning"> {{ contEmAndamento }} </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Título e notificações -->
+  <div class="container titulo_gestor_demandas">
+    <h6 class="titulo_texto_gestor_demandas"> GESTOR DE DEMANDAS MUNICIPAIS</h6>
+    <div class="div-notificacoes">
+      <i class="bi bi-bell-fill"></i>
+      <span class="titulo_notificacoes"> NOTIFICAÇÕES </span>
+      <span class="badge bg-danger">{{ contAguardando }}</span>
+    </div>
+  </div>
+
+  <!-- Mapa -->
+  <div class="container-fluid">
+    {{ mapHtml|safe }}
+  </div>
+
+ <!-- Formulário de Pesquisa -->
+<div class="pesquisa_demanda">
+  <form method="GET" action="{% url 'search' %}">
+    <h6 class="form-label"> Pesquisar Ocorrência: </h6>
+    <div class="pesquisa_demanda_form">
+      <input type="text" id="numOcorrencia" name="numOcorrencia" class="form-control" placeholder="Número da Ocorrência" />
+      <button type="submit" class="btn btn-primary btn_pesquisa_demanda">
+        <i class="bi bi-search icone-pesquisa-demanda-sm"></i>
+        Pesquisar
+      </button>
+      <button class="btn btn-primary btn-lista-demandas" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+        <i class="bi bi-card-list"></i>Demandas
+      </button>
+    </div>
+  </form>
+</div>
+
+ <!-- Off Canvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+        <h5 id="offcanvasRightLabel"> Últimas Demandas</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+		{% for eventoHistorico in listHistoricoEventoDireita %}
+		<div class="container-fluid d-flex justify-content-center">
+			<div class="card mb-2 mt-2" style="max-width: 100%;">
+				<div class="card-header py-2">
+					<div class="row align-items-center">
+						<!-- Ícone e nome do usuário -->
+						<div class="col-auto d-flex align-items-center">
+							<i class="fas fa-user-circle fs-3 text-secondary me-2"></i>
+							<p class="fw-semibold mb-0 fs-7">{{ eventoHistorico.idEvento.idUsuario.get_full_name }}</p>
+						</div>
+						<!-- Tempo decorrido -->
+						<div class="col text-end">
+							<p class="fw-medium mb-0 text-muted small">há {{ eventoHistorico.tempo_decorrido }} minutos</p>
+						</div>
+					</div>
+				</div>
+				{% if eventoHistorico.idEvento.fileBase64 %}
+					<div class="text-center">
+						<img src="data:image/jpeg;base64,{{ eventoHistorico.idEvento.fileBase64 }}" class="img-fluid rounded" alt="Imagem do evento">
+					</div>
+				{% endif %}
+				<div class="card-body py-2">
+					<p class="card-text mb-1 small">{{ eventoHistorico.idEvento.txtProblema }}</p>
+					
+				</div>
+				<div class="card-footer text-end py-2">
+					<a href="{% url 'selecionarEvento' eventoHistorico.idEvento.numOcorrencia %}" class="text-decoration-none small">
+						Visualizar Demanda
+					</a>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+    </div>
+</div>
+
+
 {% endblock %}
+

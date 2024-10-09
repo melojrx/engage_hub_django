@@ -3,9 +3,12 @@
 <link rel="stylesheet" href="{% static 'css/gov_style.css' %}">
 
 {% if user.is_authenticated and user.is_staff %} 
+<div class="text-center mt-5">
+    <img class="logo_engage_base" src="{% static 'img/logo_engage.png' %}" alt="Logo Engage" style="width: 20%; height: auto;">
+</div>
 <div class="urban-gov-menu-gov mb-3 mt-5">
     <i class="fas fa-search fs-3 me-2"></i>
-    <a href="#"><span class="titulo-menu-gov">Consultas</span></a>
+    <a href="{% url 'prepare_search' %}"><span class="titulo-menu-gov">Consultas</span></a>
 </div>
 <div class="urban-gov-menu-gov mb-3">
     <i class="far fa-plus-square fs-3 me-2"></i>
@@ -13,7 +16,7 @@
 </div>
 <div class="urban-gov-menu-gov mb-3">
     <i class="fas fa-chart-bar fs-3 me-2"></i>
-    <a href="#"><span class="titulo-menu-gov">Estatísticas</span></a>
+    <a href="{% url 'estatisticas' %}"><span class="titulo-menu-gov">Estatísticas</span></a>
 </div>
 <div class="urban-gov-menu-gov mb-3">
     <i class="far fa-file-alt fs-3 me-2"></i>

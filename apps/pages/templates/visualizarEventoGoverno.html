@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+    <form method="POST" enctype="multipart/form-data" action="{% url 'cadastrarObservacao' num_ocorrencia=eventoHistorico.idEvento.numOcorrencia evento_historico_id=eventoHistorico.id %}">
+        {% csrf_token %}
+        <div class="row visualiza-evento-gov">
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                <strong>Ocorrência:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.numOcorrencia }}</span> <br>
+                <strong>Início:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.dataInicio|date:"d/m/Y H:i" }}</span> <br>
+                <div class="status-evento">
+                    <strong>Status:</strong>
+                    {% if eventoHistorico.idStatusEvento.id == status_aguardando.id %}
+                        <p class="alert alert-danger mt-2 p-1" role="alert">{{ eventoHistorico.idStatusEvento.txtStatusEvento }}</p>
+                    {% elif eventoHistorico.idStatusEvento.id == status_em_andamento.id %}
+                        <p class="alert alert-warning mt-2 p-1" role="alert">{{ eventoHistorico.idStatusEvento.txtStatusEvento }}</p>
+                    {% elif eventoHistorico.idStatusEvento.id == status_finalizado.id %}
+                        <p class="alert alert-success mt-2 p-1" role="alert">{{ eventoHistorico.idStatusEvento.txtStatusEvento }}</p>
+                    {% endif %}
+                </div>
+                <strong>Última Atualização:</strong> <span class="fw-normal">{{ eventoHistorico.dataInicio|date:"d/m/Y H:i" }}</span> <br>
+                <strong>Tipo:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.idSubcategoria.txtSubcategoria }} - {{ eventoHistorico.idEvento.idSubcategoria.idCategoria.txtCategoria }}</span> <br>
+                <strong>Endereço:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.txtEndereco }}</span> <br>
+                <strong>Problema:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.txtProblema }}</span> <br>
+                <strong>Latitude:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.txtLat }}</span> <br>
+                <strong>Longitude:</strong> <span class="fw-normal">{{ eventoHistorico.idEvento.txtLong }}</span> <br><br>
+                <div class="col m-0 mb-2 d-grid gap-2 d-md-flex mx-auto justify-content-md-end">
+                    {% if eventoHistorico.idStatusEvento.id != status_aguardando.id %}
+                        <button type="button" class="btn btn-success btn-sm" disabled><i class="bi bi-play-circle"></i> Atender</button>
+                    {% else %}
+                        <button type="button" class="btn btn-success btn-sm" onclick="window.location.href='{% url 'atender' num_ocorrencia=eventoHistorico.idEvento.numOcorrencia %}';"><i class="bi bi-play-circle"></i> Atender</button>
+                    {% endif %}
+
+                    {% if eventoHistorico.idStatusEvento.id != status_em_andamento.id %}
+                        <button type="button" class="btn btn-primary btn-sm" disabled><i class="bi bi-check2-circle"></i> Finalizar</button>
+                    {% else %}
+                        <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='{% url 'finalizar' num_ocorrencia=eventoHistorico.idEvento.numOcorrencia %}';"><i class="bi bi-check2-circle"></i> Finalizar</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-xs-hidden col-sm-hidden col-img-detalha-demanda">
+                <div class="row m-1 align-items-center justify-content-center">
+                    <figure class="figure text-center" id="img">
+                        <img class="figure-img rounded" src="data:image/jpeg;base64,{{ eventoHistorico.idEvento.fileBase64 }}" width="100%">
+                        <figcaption class="figure-caption">
+                            Tipo: <span class="fw-normal">{{ eventoHistorico.idEvento.idSubcategoria.txtSubcategoria }} - {{ eventoHistorico.idEvento.idSubcategoria.idCategoria.txtCategoria }}</span>
+                        </figcaption>
+                    </figure>
+                </div>
+            </div>
+        </div>
+        <div class="row detalha-ocorrencia">
+            <div class="container-fluid">
+                <h5><strong>Ocorrência: <span>{{ eventoHistorico.idEvento.numOcorrencia }}</span></strong></h5>
+                <hr>
+            </div>
+            <div class="container-fluid mb-4">
+                {% for eventoHist in listEventoHistorico %}
+                    <span class="fw-bold">Status:</span> <span class="fw-normal">{{ eventoHist.idStatusEvento.txtStatusEvento }}</span> <br>
+                    <!-- Usuário que mudou o status: <span class="fw-normal">{{ eventoHist.idUsuario.get_full_name }}</span> <br> -->
+                    {% for obs in eventoHist.observacoes.all %}
+                        <span class="fw-bold">{{ obs.idUsuario.get_full_name|capfirst }}</span> em <span class="fw-normal">{{ obs.dataInicio|date:"d/m/Y  H:i" }}h:</span> <span class="fw-normal">{{ obs.txtObservacao }}</span> <br>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="container-fluid">
+                <label for="observacao" class="form-label">Observação:</label>
+                <textarea name="observacao" id="observacao" class="form-control mb-2"></textarea>
+                <div class="col m-0 mb-2 d-grid gap-2 d-md-flex mx-auto justify-content-md-end">
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i> Cadastrar</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="window.location.href='{% url 'homeGoverno' %}';"><i class="bi bi-arrow-left-circle"></i> Voltar</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

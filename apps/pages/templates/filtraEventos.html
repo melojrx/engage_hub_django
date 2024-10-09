@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/gov_style.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+{% block content %}
+
+<script type="text/javascript">
+    $(function () {
+      $("#userSearch").autocomplete({
+        source: function (request, response) {
+          $.getJSON("{% url 'user_autocomplete' %}", {
+            userSearch: request.term,
+          }, function (data) {
+            response(data.results);
+          });
+        },
+        minLength: 2,
+        select: function (event, ui) {
+          $('#userSearch').val(ui.item.value);
+          return false;
+        }
+      });
+    });
+</script>
+
+<div class="container-fluid">
+
+  <div class="container p-0 mb-1 mt-4">
+    <h5 class="titulo-filtra-demandas"> <strong> <i class="bi bi-search"></i> Consultas </strong></h5>
+    <hr class="mt-1">
+  </div>
+
+  <form action="{% url 'evento_search' %}" method="GET">
+    <div class="container main-filtra-eventos">
+      <div class="col-3 m-1">
+        <label class="form-label m-1"> Pesquisar Demanda: </label>
+        <input type="text" name="numOcorrenciaSearch" class="form-control form-control-sm m-1"
+          placeholder="Número da Demanda" value="{{ numOcorrenciaSearch|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-3 m-1">
+        <label class="form-label m-1"> Status: </label>
+        <select class="form-select form-select-sm m-1" aria-label="Selecione o status" name="statusSearch">
+          <option value="">- Todos - </option>
+          {% for eve in listStatus %}
+            <option value="{{ eve.id }}" {% if statusSearch == eve.id|stringformat:"s" %}selected{% endif %}>{{ eve.txtStatusEvento }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-3 m-1">
+        <label class="form-label m-1"> Categoria: </label>
+        <select class="form-select form-select-sm m-1" aria-label="Selecione a categoria" name="categoriaSearch">
+          <option value="">- Todos - </option>
+          {% for cat in listCategoria %}
+            <option value="{{ cat.id }}" {% if categoriaSearch == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.txtCategoria }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="row filtros-button">
+        <div class="col-3 m-1">
+          <label for="users" class="form-label form-label-sm m-1"> Usuário: </label>
+          <input type="text" class="form-control form-control-sm m-1" id="userSearch" name="userSearch"
+            placeholder="Pesquise por email do usuário" value="{{ userSearch|default_if_none:'' }}">
+        </div>
+
+        <div class="col-3 m-1">
+          <label class="form-label m-1"> Início: </label>
+          <input type="date" name="dataInicioSearch" class="form-control form-control-sm m-1"
+            value="{{ dataInicioSearch|default_if_none:'' }}" />
+        </div>
+
+        <div class="col-3 m-1">
+          <label class="form-label m-1"> Fim: </label>
+          <input type="date" name="dataFimSearch" class="form-control form-control-sm m-1"
+            value="{{ dataFimSearch|default_if_none:'' }}" />
+        </div>
+
+        <div class="col-3 div-button-filtrar-eventos">
+          <button type="submit" class="btn btn-outline-success btn-sm m-1">
+            <i class="bi bi-filter-circle"></i> Filtrar </button>
+          <button type="reset" class="btn btn-outline-danger btn-sm m-1">
+            <i class="bi bi-x-circle"></i> Limpar </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  {% if listEventoHistoricoSearch %}
+  <div class="container mb-1 mt-3">
+    <h5> <strong> ENGAGE_HUB - FILTROS </strong></h5>
+    <hr class="mt-1">
+  </div>
+
+  <div class="container mb-1 mt-3">
+    <table class="table table-striped tabela-filtros">
+      <thead>
+        <tr>
+          <th scope="col">id</th>
+          <th scope="col">Usuário</th>
+          <th scope="col">Status</th>
+          <th scope="col">Categoria</th>
+          <th scope="col">Data</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in listEventoHistoricoSearch %}
+        <tr>
+          <th scope="row">{{ forloop.counter }}</th>
+          <td>{{ row.idEvento.idUsuario.get_full_name }}</td>
+          <td>{{ row.idStatusEvento.txtStatusEvento }}</td>
+          <td>{{ row.idEvento.idSubcategoria.idCategoria.txtCategoria }}</td>
+          <td>{{ row.idEvento.dataInicio|date:"d/m/Y H:i" }}</td>
+          <td>
+            <button type="button" class="btn btn-danger btn-sm"
+              onclick="window.location.href='{% url 'selecionarEvento' num_ocorrencia=row.idEvento.numOcorrencia %}';"><i
+              class="bi bi-arrow-left-circle"></i> Acessar
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Pagination Links-->
+    <div class="container pagination">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          {% if listEventoHistoricoSearch.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ listEventoHistoricoSearch.previous_page_number }}">Anterior</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Anterior</span>
+            </li>
+          {% endif %}
+
+          <!-- Display page numbers -->
+          {% for page_num in listEventoHistoricoSearch.paginator.page_range %}
+            {% if page_num == listEventoHistoricoSearch.number %}
+              <li class="page-item active">
+                <span class="page-link">{{ page_num }}</span>
+              </li>
+            {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_num }}">{{ page_num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if listEventoHistoricoSearch.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ listEventoHistoricoSearch.next_page_number }}">Próxima</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Próxima</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      <!-- <div class="button-voltar">
+        <button type="button" class="btn btn-danger btn-sm"
+          onclick="window.location.href='{% url 'homeGoverno' %}';"><i class="bi bi-arrow-left-circle"></i> Voltar
+        </button>
+      </div> -->
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
