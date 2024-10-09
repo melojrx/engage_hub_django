@@ -58,6 +58,8 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_yasg',
 ]
 THIRD_APPS = [
     "corsheaders",
@@ -67,6 +69,7 @@ PROJECT_APPS = [
     'apps.pages',
     'apps.contas',
     'apps.estatisticas',
+    'api',
 ]
 
 AUTH_USER_MODEL = "contas.MyUser"
@@ -97,6 +100,9 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK={
     'EXCEPTION_HANDLER': 'requestlogs.views.exception_handler',
+     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
 }
 
 ROOT_URLCONF = "core.urls"

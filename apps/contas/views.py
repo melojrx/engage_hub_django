@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 from django.shortcuts import render, redirect
@@ -7,6 +8,7 @@ from contas.forms import CustomUserCreationForm
 def timeout_view(request):
     return render(request, 'timeout.html')
 
+@csrf_exempt
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
