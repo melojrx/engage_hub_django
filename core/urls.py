@@ -8,6 +8,13 @@ from drf_yasg import openapi
 
 from rest_framework import permissions
 
+from rest_framework_simplejwt.views import (
+    TokenRefreshView,
+)
+
+from apps.api.views import MyTokenObtainPairView  
+
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Engage Hub API",
@@ -18,7 +25,8 @@ schema_view = get_schema_view(
         license=openapi.License(name="BSD License"),
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,),  # Definido como tupla
+    permission_classes=(permissions.AllowAny,),
+    authentication_classes=[],  # Removido se não necessário
 )
 
 
@@ -29,6 +37,10 @@ urlpatterns = [
     path('estatisticas/', include('estatisticas.urls')), 
     
     path('api/v1/', include('api.urls')),
+    
+     # Endpoints JWT personalizados
+    path('api/v1/token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
      # Rotas para a documentação Swagger
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
