@@ -1,36 +1,13 @@
-from requests import Response
-from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import MyTokenObtainPairSerializer
 from rest_framework import generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import EventoSerializer, CategoriaSerializer, SubcategoriaSerializer
 from pages.models import Evento, Categoria, Subcategoria
-from django.contrib.auth import authenticate, login, logout
-from rest_framework import status
 
 
-class LogoutAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request, format=None):
-        logout(request)
-        return Response({'message': 'Logout bem-sucedido.'}, status=status.HTTP_200_OK)
-    
-class LoginAPIView(APIView):
-    """
-    Endpoint para autenticação de usuários.
-
-    **Métodos:**
-    - POST: Autentica o usuário com email e senha.
-    """
-    def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-        user = authenticate(request, email=email, password=password)
-        if user is not None:
-            login(request, user)  # Cria a sessão
-            return Response({'message': 'Login bem-sucedido'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Credenciais inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
 # View para listar e criar demandas (Eventos)
 class EventoListCreateAPIView(generics.ListCreateAPIView):
@@ -49,8 +26,13 @@ class EventoListCreateAPIView(generics.ListCreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
-        # Retorna apenas os eventos do usuário autenticado
-        return Evento.objects.filter(idUsuario=self.request.user)
+        """
+        Retorna todos os eventos de todos os usuários que ainda não estão finalizados
+        (onde `dataFim` está vazio) e ordenados do mais recente para o mais antigo.
+        """
+        return Evento.objects.filter(
+            dataFim__isnull=True  # Apenas eventos onde `dataFim` está vazio (não finalizados)
+        ).order_by('-dataInicio')  # Ordenar do mais recente para o mais antigo
 
     def perform_create(self, serializer):
         # Define o usuário autenticado como o criador do evento
@@ -67,6 +49,13 @@ class SubcategoriaListAPIView(generics.ListAPIView):
     queryset = Subcategoria.objects.all()
     serializer_class = SubcategoriaSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        categoria_id = self.request.query_params.get('categoria_id')
+        if categoria_id:
+            queryset = queryset.filter(categoria_id=categoria_id)
+        return queryset
  
 #Visualizar Detalhes de um Evento    
 class EventoRetrieveAPIView(generics.RetrieveAPIView):
