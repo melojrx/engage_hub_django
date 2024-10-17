@@ -1,10 +1,12 @@
+from django.urls import reverse
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import MyTokenObtainPairSerializer
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import EventoSerializer, CategoriaSerializer, SubcategoriaSerializer
 from pages.models import Evento, Categoria, Subcategoria
-
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -54,13 +56,49 @@ class SubcategoriaListAPIView(generics.ListAPIView):
         queryset = super().get_queryset()
         categoria_id = self.request.query_params.get('categoria_id')
         if categoria_id:
-            queryset = queryset.filter(categoria_id=categoria_id)
+            queryset = queryset.filter(idCategoria_id=categoria_id)
         return queryset
- 
-#Visualizar Detalhes de um Evento    
+
+# Visualizar Detalhes de um Evento    
 class EventoRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = EventoSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Evento.objects.filter(idUsuario=self.request.user)
+    
+class FileUploadView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, format=None):
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({"detail": "Nenhum arquivo foi enviado."}, status=status.HTTP_400_BAD_REQUEST)
+
+        file_name = request.query_params.get('file_name', file_obj.name)
+
+        # Salvar o arquivo com o nome especificado
+        from django.core.files.storage import default_storage
+        file_path = default_storage.save(f'uploads/{file_name}', file_obj)
+
+        # Retornar o caminho relativo do arquivo
+        return Response({"file_path": file_path}, status=status.HTTP_201_CREATED)
+
+    
+class UploadURLView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        file_name = request.query_params.get('file_name')
+        if not file_name:
+            return Response({"detail": "O parâmetro 'file_name' é obrigatório."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Gerar a URL de upload usando o nome da rota 'file-upload'
+        upload_url = request.build_absolute_uri(reverse('file-upload'))
+
+        # Adicionar o parâmetro 'file_name' na URL, se necessário
+        upload_url = f"{upload_url}?file_name={file_name}"
+
+        return Response({"upload_url": upload_url}, status=status.HTTP_200_OK)
+
